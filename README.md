@@ -1,2 +1,3 @@
-# r-lille-2021
-Presentation about {targets} at the R Lille meetup in 2021
+# Reproducible computation at scale in R with targets
+
+The `targets` R package enhances the reproducibility, scale, and maintainability of data science projects in computationally intense fields such as machine learning, Bayesian data analysis, and statistical genomics. `targets` resolves the dependency structure of the analysis pipeline, skips tasks that are already up to date, executes the rest with optional distributed computing, and manages data storage. Packages such as `stantargets` extend `targets` to simplify pipeline construction for specialized use cases such as the validation of Bayesian models.
