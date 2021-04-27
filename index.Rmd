@@ -91,9 +91,9 @@ Sys.setenv(TAR_SCRIPT_ASK = "false")
 tar_destroy()
 ```
 
-## Long computation in R
+## Demanding computation in R
 
-<img src="./images/long-computation.png" height="300px">
+<img src="./images/examples.png" height="300px">
 
 .pull-left[
 * Deep learning: `keras`, `tensorflow`, `torch`
@@ -110,3 +110,9 @@ tar_destroy()
 * Database queries: `DBI`
 * ETL on large data
 ]
+
+---
+
+## Harsh realities of long computation
+
+![](./images/realities.png)
