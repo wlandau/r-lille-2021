@@ -116,3 +116,27 @@ tar_destroy()
 ## Harsh realities of long computation
 
 ![](./images/realities.png)
+
+---
+
+## Workflows have interconnected steps
+
+![](./images/workflow.png)
+
+---
+
+## If you change code or data...
+
+![](./images/change.png)
+
+---
+
+## ...the downstream steps are no longer valid.
+
+![](./images/downstream.png)
+
+---
+
+## How do you know which scripts to rerun? 
+
+
