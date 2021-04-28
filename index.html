@@ -90,13 +90,13 @@ content: "";
 
 ---
 
-## Harsh realities of long computation
+## Overlooked realities of long computation
 
 ![](./images/realities.png)
 
 ---
 
-## Workflows have interconnected steps
+## Workflows have interconnected steps.
 
 ![](./images/workflow.png)
 
@@ -114,8 +114,69 @@ content: "";
 
 ---
 
-## How do you know which scripts to rerun? 
+## Dilemma: short runtimes or reproducible results?
 
+![](./images/decisions.png)
+
+---
+
+## Let a pipeline tool figure out what to run.
+
+![](./images/pipeline-graph.png)
+
+* Saves time while ensuring computational reproducibility.
+
+---
+
+## Pipeline tools
+
+![](./images/infographic.png)
+
+* Existing pipeline tools: https://github.com/pditommaso/awesome-pipeline
+* Most are language-agnostic or designed for Python or the shell.
+
+---
+
+## `targets` 
+
+&lt;center&gt;
+&lt;img src = "./images/R.png" align="middle" style="border: none; box-shadow: none; text-align: center; height: 80px"&gt;
+&lt;/center&gt;
+
+* Fundamentally designed for R.
+* Supports a clean, modular, function-oriented programming style.
+* Abstracts files as R objects and automatically manages data.
+* Surpasses the permanent limitations of its predecessor, [`drake`](https://github.com/ropensci/drake): &lt;https://books.ropensci.org/targets/drake.html&gt;.
+* Continuation of the ideas from `remake` by Rich FitzJohn: &lt;https://github.com/richfitz/remake&gt;.
+
+---
+
+## `targets` embraces functions.
+
+&gt; * Everything that exists is an object.
+&gt; * Everything that happens is a function call.
+&gt;
+&gt; John Chambers
+
+* Functions are fundamental building blocks in most computer languages.
+* Advantages of functions:
+    * Clearly define relationships among inputs and outputs.
+    * Help `targets` decide which tasks to run and which ones to skip.
+    * Break down complicated ideas into manageable pieces.
+    * Custom shorthand to make code easier to read.
+* Common uses of R functions in data science:
+    1. Preprocess a dataset.
+    2. Analyze a dataset.
+    3. Summarize an analysis.
+
+---
+
+## Example: customer churn
+
+* Deep learning with Keras.
+* IBM Cognos Analytics Telco customer churn dataset.
+* Find the model that best predicts which customers will cancel their telecom subscriptions.
+* Example comes from Matt Dancho's 2018 RStudio AI Blog post: https://blogs.rstudio.com/ai/posts/2018-01-11-keras-customer-churn/.
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
