@@ -137,7 +137,7 @@ content: "";
 
 ---
 
-## `targets` 
+## {targets}
 
 &lt;center&gt;
 &lt;img src = "./images/R.png" align="middle" style="border: none; box-shadow: none; text-align: center; height: 80px"&gt;
@@ -151,7 +151,7 @@ content: "";
 
 ---
 
-## `targets` embraces functions.
+## {targets} embraces functions.
 
 &gt; * Everything that exists is an object.
 &gt; * Everything that happens is a function call.
@@ -177,6 +177,279 @@ content: "";
 * IBM Cognos Analytics Telco customer churn dataset.
 * Find the model that best predicts which customers will cancel their telecom subscriptions.
 * Example comes from Matt Dancho's 2018 RStudio AI Blog post: https://blogs.rstudio.com/ai/posts/2018-01-11-keras-customer-churn/.
+
+---
+
+## Project files
+
+* Many variations on this theme, only `_targets.R` is strictly required.
+
+
+```r
+_targets.R
+R/
+└── functions.R
+data/
+└── customer_churn.csv
+```
+
+---
+
+## functions.R file
+
+
+```r
+split_data &lt;- function(file) {
+  read_csv(file, col_types = cols()) %&gt;%
+    initial_split(prop = 0.7)
+}
+
+prepare_recipe &lt;- function(data) {
+  # ...
+}
+
+test_model &lt;- function(data, recipe, act1) {
+  # ...
+}
+```
+
+---
+
+## _targets.R file
+
+
+```r
+library(targets)
+source("R/functions.R")
+tar_option_set(packages = c("keras", "tidyverse", "rsample", "recipes", "yardstick"))
+list(
+  tar_target(file, "data/churn.csv", format = "file"),
+  tar_target(data, split_data(file)),
+  tar_target(recipe, prepare_recipe(data)),
+  tar_target(model1, test_model(data, recipe, act1 = "relu")),
+  tar_target(model2, test_model(data, recipe, act1 = "sigmoid")),
+  tar_target(model3, test_model(data, recipe, act1 = "linear"))
+)
+```
+
+---
+
+## Check the graph.
+
+
+```r
+tar_visnetwork(targets_only = TRUE)
+```
+
+![](./images/keras-before.png)
+
+---
+
+## Run the pipeline.
+
+
+```r
+tar_make()
+#&gt; • start target file
+#&gt; • built target file
+#&gt; • start target data
+#&gt; • built target data
+#&gt; • start target recipe
+#&gt; • built target recipe
+#&gt; • start target model1
+#&gt; • built target model1
+#&gt; • start target model2
+#&gt; • built target model2
+#&gt; • start target model3
+#&gt; • built target model3
+#&gt; • end pipeline
+```
+
+---
+
+## Check the results.
+
+
+```r
+tar_read(model1)
+#&gt; # A tibble: 1 x 2
+#&gt;   accuracy act1 
+#&gt;      &lt;dbl&gt; &lt;chr&gt;
+#&gt; 1    0.794 relu 
+tar_read(model3)
+#&gt; # A tibble: 1 x 2
+#&gt;   accuracy act1  
+#&gt;      &lt;dbl&gt; &lt;chr&gt; 
+#&gt; 1    0.798 linear
+```
+
+---
+
+## Change a target.
+
+
+```r
+library(targets)
+source("R/functions.R")
+tar_option_set(packages = c("keras", "tidyverse", "rsample", "recipes", "yardstick"))
+list(
+  tar_target(file, "data/churn.csv", format = "file"),
+  tar_target(data, split_data(file)),
+  tar_target(recipe, prepare_recipe(data)),
+  tar_target(model1, test_model(data, recipe, act1 = "relu")),
+  tar_target(model2, test_model(data, recipe, act1 = "sigmoid")),
+* tar_target(model3, test_model(data, recipe, act1 = "softmax"))
+)
+```
+
+---
+
+## Only model3 will rerun next time.
+
+
+```r
+tar_visnetwork(targets_only = TRUE)
+```
+
+![](./images/keras-command.png)
+
+---
+
+## The other models are skipped to save time.
+
+
+```r
+tar_make()
+#&gt; ✓ skip target file
+#&gt; ✓ skip target data
+#&gt; ✓ skip target recipe
+#&gt; ✓ skip target model1
+#&gt; ✓ skip target model2
+#&gt; • start target model3
+#&gt; • built target model3
+#&gt; • end pipeline
+```
+
+---
+
+## Change function code.
+
+
+```r
+define_model &lt;- function(churn_recipe, act1) {
+  input_shape &lt;- ncol(
+    juice(churn_recipe, all_predictors(), composition = "matrix")
+  )
+  out &lt;- keras_model_sequential() %&gt;%
+    layer_dense(
+      units = units1,
+      kernel_initializer = "uniform",
+      activation = act1,
+      input_shape = input_shape
+    ) %&gt;%
+*   layer_dropout(rate = 0.2) # previously 0.1
+  # ...
+}
+```
+
+---
+
+## {targets} understand dependencies among functions.
+
+
+```r
+tar_visnetwork(targets_only = FALSE)
+```
+
+&lt;image src="./images/keras-function.png" height = "400px"&gt;
+
+---
+
+## Run the models but skip the data.
+
+
+```r
+tar_make()
+#&gt; ✓ skip target file
+#&gt; ✓ skip target data
+#&gt; ✓ skip target recipe
+#&gt; • start target model1
+#&gt; • built target model1
+#&gt; • start target model2
+#&gt; • built target model2
+#&gt; • start target model3
+#&gt; • built target model3
+#&gt; • end pipeline
+```
+
+---
+
+## Tangible evidence of reproducibility
+
+
+```r
+tar_make()
+#&gt; ✓ skip target file
+#&gt; ✓ skip target data
+#&gt; ✓ skip target recipe
+#&gt; ✓ skip target model1
+#&gt; ✓ skip target model2
+#&gt; ✓ skip target model3
+#&gt; ✓ skip pipeline
+```
+
+---
+
+## Extending {targets}
+
+![](./images/targetopia.png)
+
+---
+
+## Target factories
+
+* A target factory is a reusable function that creates target objects.
+
+
+```r
+target_factory &lt;- function(file) {
+  list(
+    tar_target_raw("file", file, format = "file", deployment = "main"),
+    tar_target_raw("data", quote(read_data(file)), format = "fst_tbl", deployment = "main"),
+    tar_target_raw("model", quote(run_model(data)), format = "qs")
+  )
+}
+```
+
+---
+
+## Target factories simplify pipeline construction.
+
+
+```r
+# _targets.R
+library(targets)
+library(yourExamplePackage)
+list(
+  target_factory("data.csv")
+)
+```
+
+
+```r
+# R console
+tar_manifest(fields = command)
+#&gt; # A tibble: 3 x 2
+#&gt;   name  command          
+#&gt;   &lt;chr&gt; &lt;chr&gt;            
+#&gt; 1 file  "\"data.csv\""   
+#&gt; 2 data  "read_data(file)"           
+#&gt; 3 model "run_model(data)"
+```
+
+---
+
+## Example: {stantargets}
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
