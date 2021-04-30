@@ -62,6 +62,9 @@ background-size: contain;
 .remark-slide-content .nocopyright:after {
 content: "";
 }
+.small {
+  font-size: 85%;
+}
 &lt;/style&gt;
 
 
@@ -143,10 +146,9 @@ content: "";
 
 ## {targets} embraces functions.
 
-&gt; * Everything that exists is an object.
-&gt; * Everything that happens is a function call.
+&gt; Nearly everything that happens in R results from a function call. Therefore, basic programming centers on creating and refining functions.
 &gt;
-&gt; John Chambers
+&gt; [John Chambers (2008)](https://www.springer.com/gp/book/9780387759357)
 
 * Functions are fundamental building blocks in most computer languages.
 * Advantages of functions:
@@ -631,9 +633,13 @@ tar_read(coverage)
 
 ## References
 
+.small[
 * Bob Carpenter, Andrew Gelman, Matthew D. Hoffman, Daniel Lee, Ben Goodrich, Michael Betancourt, Marcus Brubaker, Jiqiang Guo, Peter Li, and Allen Riddell. 2017. Stan: A probabilistic programming language. Journal of Statistical Software 76(1). [10.18637/jss.v076.i01](https://www.jstatsoft.org/article/view/v076i01).
 * Samantha R. Cook, Andrew Gelman, and Donald B. Rubin. 2006. "Validation of Software for Bayesian Models Using Posterior Quantiles." Journal of Computational and Graphical Statistics 15 (3): 675–92. &lt;http://www.jstor.org/stable/27594203&gt;.
+* John M. Chambers. 2008. &lt;u&gt;Software for Data Analysis: Programming with R&lt;/u&gt;. Chapter 3. Springer, 978-1441926128, &lt;https://www.springer.com/gp/book/9780387759357&gt;.
+* Matt Dancho. "Deep Learning With Keras To Predict Customer Churn." RStudio AI Blog, 2018-01-11. &lt;https://blogs.rstudio.com/tensorflow/posts/2018-01-11-keras-customer-churn/&gt;.
 * Sean Talts, Michael Betancourt, Daniel Simpson, Aki Vehtari, and Andrew Gelman. 2020. "Validating Bayesian Inference Algorithms with Simulation-Based Calibration." &lt;http://arxiv.org/abs/1804.06788&gt;.
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
