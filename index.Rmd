@@ -143,11 +143,12 @@ tar_destroy()
 
 ---
 
-## Let a pipeline tool figure out what to run.
+## Let a pipeline tool figure out what to rerun.
 
 ![](./images/pipeline_graph.png)
 
-* Saves time while ensuring computational reproducibility.
+* Save time while ensuring computational reproducibility.
+* Automatic parallel/distributed computing based on the directed acyclic graph.
 
 ---
 
@@ -462,22 +463,23 @@ tar_manifest(fields = command)
 <image src="./images/stantargets.png" height = "300px">
 </center>
 
-* Easy pipeline construction for statistical models with Stan.
+* Easy pipeline construction for Stan statistical models.
+* Uses R packages [`cmdstanr`](https://mc-stan.org/cmdstanr/) and [`posterior`](https://mc-stan.org/posterior/).
 
 ---
 
 ## About Stan
 
 <center>
-<image src="./images/stan.png" height = "300px">
+<image src="./images/stan.png" height = "250px">
 </center>
 
 * Probabilistic programming language.
 * Markov chain Monte Carlo (MCMC) with HMC and NUTS.
-* Often more efficient than Gibbs sampling.
+    * Often more efficient than Gibbs sampling.
     * Flexible specification of posterior distributions.
     * Indifferent to conjugacy.
-    * Variational Bayes (ADVI)
+* Variational inference (ADVI)
 * Penalized MLE (L-BFGS)
 
 ---
@@ -506,12 +508,12 @@ model {
 
 ## Interval-based validation study
 
-* For many independent replications:
+* For thousands of independent replications:
     * Simulate data from the prior predictive distribution.
     * Fit the model to the simulated data using MCMC.
     * Calculate x% posterior intervals for each of `alpha` and `beta`.
-* for each of `alpha` and `beta`, roughly x% of the posterior intervals should cover the analogous parameter values simulated from the joint prior.
-* Simulation-based calibration extends this idea further (Cook et al. 2006; Talts et al. 2020).
+* For each of `alpha` and `beta`, roughly x% of the posterior intervals should cover the corresponding parameter draws from the joint prior.
+* Simulation-based calibration extends this idea further ([Cook et al. 2006](https://www.jstor.org/stable/27594203); [Talts et al. 2020](https://arxiv.org/abs/1804.06788)).
 
 ---
 
@@ -588,8 +590,8 @@ list(
 
 * High-performance computing with `targets`: <https://books.ropensci.org/targets/hpc.html>
 * Distributed computing available, not just multicore: SLURM, SGE, TORQUE, PBS, LSF 
-* Persistent workers: `tar_make_clustermq()`
-* Transient workers: `tar_make_future()`
+* Persistent workers with the [`clustermq`](https://mschubert.github.io/clustermq/) package: `tar_make_clustermq()`
+* Transient workers with the [`future`](https://future.futureverse.org/) package: `tar_make_future()`
 
 ---
 
@@ -615,7 +617,7 @@ tar_read(model)
 
 ---
 
-## Coverage by 95% intervals is nominal
+## Coverage is nominal (95%)
 
 ```{r, eval = FALSE}
 tar_read(coverage)
