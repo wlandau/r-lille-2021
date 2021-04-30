@@ -458,3 +458,193 @@ tar_manifest(fields = command)
 
 ## Example: {stantargets}
 
+<center>
+<image src="./images/stantargets.png" height = "300px">
+</center>
+
+* Easy pipeline construction for statistical models with Stan.
+
+---
+
+## About Stan
+
+<center>
+<image src="./images/stan.png" height = "300px">
+</center>
+
+* Probabilistic programming language.
+* Markov chain Monte Carlo (MCMC) with HMC and NUTS.
+* Often more efficient than Gibbs sampling.
+    * Flexible specification of posterior distributions.
+    * Indifferent to conjugacy.
+    * Variational Bayes (ADVI)
+* Penalized MLE (L-BFGS)
+
+---
+
+## Example Stan model
+
+```{c, eval = FALSE}
+// model.stan
+data {
+  int <lower = 1> n;
+  vector[n] x;
+  vector[n] y;
+}
+parameters {
+  real alpha;
+  vector[n] beta;
+}
+model {
+  y ~ normal(alpha + x .* beta, 1);
+  alpha ~ normal(0, 1);
+  beta ~ normal(0, 1);
+}
+```
+
+---
+
+## Interval-based validation study
+
+* For many independent replications:
+    * Simulate data from the prior predictive distribution.
+    * Fit the model to the simulated data using MCMC.
+    * Calculate x% posterior intervals for each of `alpha` and `beta`.
+* for each of `alpha` and `beta`, roughly x% of the posterior intervals should cover the analogous parameter values simulated from the joint prior.
+* Simulation-based calibration extends this idea further (Cook et al. 2006; Talts et al. 2020).
+
+---
+
+## Function for prior predictive simulations
+
+```{r, eval = FALSE}
+simulate_data <- function(n = 10L) {
+  alpha <- rnorm(n = 1, mean = 0, sd = 1)
+  beta <- rnorm(n = n, mean = 0, sd = 1)
+  x <- seq(from = -1, to = 1, length.out = n)
+  y <- rnorm(n, alpha + x * beta, 1)
+  list(
+    n = n,
+    x = x,
+    y = y,
+    # Hold on to prior draws:
+    .join_data = list(alpha = alpha, beta = beta) #<<
+  )
+}
+```
+
+---
+
+## _targets.R file
+
+```{r, eval = FALSE}
+library(targets)
+library(stantargets)
+source("R/functions.R")
+tar_option_set(packages = "tidyverse")
+options(clustermq.scheduler = "multicore") #<<
+list(
+  tar_stan_mcmc_rep_summary(
+    name = model, stan_files = "model.stan", data = simulate_data(),
+    batches = 80, reps = 25, variables = c("alpha", "beta"),
+    summaries = list(
+      ~posterior::quantile2(.x, probs = c(0.025, 0.975)),
+      rhat = posterior::rhat
+    ),
+  ),
+  tar_target(
+    coverage,
+    model %>%
+      group_by(variable) %>%
+      summarize(rate = mean(q2.5 < .join_data & .join_data < q97.5))
+  )
+)
+```
+
+---
+
+## Multiple targets
+
+![](./images/stan-graph.png)
+
+---
+
+## Run MCMC batches in parallel
+
+```{r, eval = FALSE}
+> tar_make_clustermq(workers = 4) # 4 local cores
+#> • start target model_batch
+#> • built target model_batch
+#> • start branch model_data_b0b9380a
+#> • start branch model_data_ffcdb73c
+#> • start branch model_data_b968a03a
+#> • start branch model_data_f8763cb2
+#> • built branch model_data_ffcdb73c
+#> • start branch model_data_0bfdabdc
+#> • built branch model_data_f8763cb2
+#> • start branch model_data_d888319c
+#> ...
+```
+
+* High-performance computing with `targets`: <https://books.ropensci.org/targets/hpc.html>
+* Distributed computing available, not just multicore: SLURM, SGE, TORQUE, PBS, LSF 
+* Persistent workers: `tar_make_clustermq()`
+* Transient workers: `tar_make_future()`
+
+---
+
+## Simulation results
+
+```{r, eval = FALSE}
+tar_read(model)
+#> # A tibble: 22,000 x 8
+#>    variable   q2.5 q97.5  rhat .join_data .rep     .file      .name
+#>    <chr>     <dbl> <dbl> <dbl>      <dbl> <chr>    <chr>      <chr>
+#>  1 alpha     0.575  1.92  1.00      0.768 14556f0a model.stan model
+#>  2 beta[1]  -1.34   1.50  1.00      0.163 14556f0a model.stan model
+#>  3 beta[2]  -0.620  2.51  1.00      1.14  14556f0a model.stan model
+#>  4 beta[3]  -1.81   1.67  1.00      1.03  14556f0a model.stan model
+#>  5 beta[4]  -2.22   1.51  1.00      0.638 14556f0a model.stan model
+#>  6 beta[5]  -1.97   1.99  1.00     -1.03  14556f0a model.stan model
+#>  7 beta[6]  -1.99   1.90  1.00     -0.348 14556f0a model.stan model
+#>  8 beta[7]  -1.28   2.52  1.00     -0.570 14556f0a model.stan model
+#>  9 beta[8]  -1.80   1.63  1.00      0.832 14556f0a model.stan model
+#> 10 beta[9]  -1.84   1.33  1.00      0.551 14556f0a model.stan model
+# … with 21,990 more rows
+```
+
+---
+
+## Coverage by 95% intervals is nominal
+
+```{r, eval = FALSE}
+tar_read(coverage)
+#> # A tibble: 11 x 2
+#>    variable  rate
+#>    <chr>    <dbl>
+#>  1 alpha    0.950
+#>  2 beta[1]  0.948
+#>  3 beta[10] 0.959
+#>  4 beta[2]  0.954
+#>  5 beta[3]  0.962
+#>  6 beta[4]  0.949
+#>  7 beta[5]  0.952
+#>  8 beta[6]  0.960
+#>  9 beta[7]  0.952
+#> 10 beta[8]  0.952
+#> 11 beta[9]  0.944
+```
+
+---
+
+## Resources
+
+* `targets`: <https://docs.ropensci.org/targets/>
+* `stantargets`:  <https://docs.ropensci.org/stantargets/>
+* Stan: <https://mc-stan.org/>
+
+## References
+
+* Bob Carpenter, Andrew Gelman, Matthew D. Hoffman, Daniel Lee, Ben Goodrich, Michael Betancourt, Marcus Brubaker, Jiqiang Guo, Peter Li, and Allen Riddell. 2017. Stan: A probabilistic programming language. Journal of Statistical Software 76(1). [10.18637/jss.v076.i01](https://www.jstatsoft.org/article/view/v076i01).
+* Samantha R. Cook, Andrew Gelman, and Donald B. Rubin. 2006. "Validation of Software for Bayesian Models Using Posterior Quantiles." Journal of Computational and Graphical Statistics 15 (3): 675–92. <http://www.jstor.org/stable/27594203>.
+* Sean Talts, Michael Betancourt, Daniel Simpson, Aki Vehtari, and Andrew Gelman. 2020. "Validating Bayesian Inference Algorithms with Simulation-Based Calibration." <http://arxiv.org/abs/1804.06788>.
