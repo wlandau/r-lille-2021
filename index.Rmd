@@ -93,23 +93,16 @@ tar_destroy()
 
 ## Demanding computation in R
 
-<img src="./images/examples.png" height="300px">
-
-.pull-left[
 * Deep learning: `keras`, `tensorflow`, `torch`
 * Machine learning: `tidymodels`
 * Bayesian data analysis: JAGS, Stan, NIMBLE, `greta`
 * PK/PD: `nlmixr`, `mrgsolve`
-]
-
-.pull-right[
 * Clinical trial simulation: `rpact`, `Mediana`
 * Statistical genomics
 * Social network analysis
 * Permutation tests
 * Database queries: `DBI`
 * ETL on large data
-]
 
 ---
 
@@ -154,18 +147,14 @@ tar_destroy()
 
 ## Pipeline tools
 
-![](./images/infographic.png)
+<center>
+<img src="./images/infographic.png" height = "125px">
+</center>
 
 * Existing pipeline tools: https://github.com/pditommaso/awesome-pipeline
 * Most are language-agnostic or designed for Python or the shell.
 
----
-
 ## {targets}
-
-<center>
-<img src = "./images/R.png" align="middle" style="border: none; box-shadow: none; text-align: center; height: 80px">
-</center>
 
 * Fundamentally designed for R.
 * Supports a clean, modular, function-oriented programming style.
@@ -470,11 +459,7 @@ tar_manifest(fields = command)
 
 ## About Stan
 
-<center>
-<image src="./images/stan.png" height = "250px">
-</center>
-
-* Probabilistic programming language.
+* Probabilistic programming language ([Carpenter et al. 2017](https://www.jstatsoft.org/article/view/v076i01)).
 * Markov chain Monte Carlo (MCMC) with HMC and NUTS.
     * Often more efficient than Gibbs sampling.
     * Flexible specification of posterior distributions.
