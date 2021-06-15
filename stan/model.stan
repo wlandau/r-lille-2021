@@ -1,15 +1,12 @@
-// model.stan
 data {
   int <lower = 1> n;
   vector[n] x;
   vector[n] y;
 }
 parameters {
-  real alpha;
-  vector[n] beta;
+  vector[2] beta;
 }
 model {
-  y ~ normal(alpha + x .* beta, 1);
-  alpha ~ normal(0, 1);
+  y ~ normal(beta[1] + x * beta[2], 1);
   beta ~ normal(0, 1);
 }
